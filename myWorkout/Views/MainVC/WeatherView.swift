@@ -66,6 +66,25 @@ class WeatherView: UIView {
         addSubview(currentWeatherLabel)
         addSubview(descriptionMotivationLabel)
     }
+    
+    private func updateLabel(model: WeatherModel) {
+        currentWeatherLabel.text = "\(model.weather[0].myDescription) \(model.main.temperatureCelsius)°C"
+    }
+    
+    private func updateImage(data: Data) {
+        guard let image = UIImage(data: data) else { return }
+        sunImageView.contentMode = .scaleAspectFill
+
+        sunImageView.image = image
+    }
+    
+    public func setWeather(model: WeatherModel) {
+        updateLabel(model: model)
+    }
+    
+    public func setImage(data: Data) {
+        updateImage(data: data)
+    }
 }
 
 

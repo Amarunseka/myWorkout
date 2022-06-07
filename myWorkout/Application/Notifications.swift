@@ -49,8 +49,8 @@ final class Notifications: NSObject {
         // мы берем дату из дня создания тренировки
         var triggerDate = calendar.dateComponents([.year, .month, .day], from: date)
         // а время подставляем сами
-        triggerDate.hour = 21
-        triggerDate.minute = 32
+        triggerDate.hour = 12
+        triggerDate.minute = 00
         // и в ту дату в 12:00 сработает нотификация
         
         // теперь добавляем триггер

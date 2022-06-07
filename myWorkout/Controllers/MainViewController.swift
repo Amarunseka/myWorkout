@@ -13,11 +13,13 @@ class MainViewController: UIViewController {
 
     // MARK: - initialise elements
     private let userNameLabel = UILabel.bigGrayLabel(text: "Amarunseka")
+    private let workoutTodayLabel = UILabel.midlGrayLabel(text: "Workout today:")
     private let userPhotoImageView = UserPhotoImageView()
     private let calendarView = CalendarView()
     private let weatherView = WeatherView()
-    private let workoutTodayLabel = UILabel.midlGrayLabel(text: "Workout today:")
     private var workoutDate = Date().localDate()
+    private let coordinates = LocalCoordinates()
+
     private var workoutsArray: Results<WorkoutRealmModel>!
     private var userArray: Results<UserRealmModel>!
     
@@ -60,10 +62,28 @@ class MainViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        showOnboarding()
         getUserInfo()
         getWorkouts(date: workoutDate)
         tableView.reloadData()
+        
+        // ПЕРЕНЕСТИ В ОТДЕЛЬНЫЙ МЕТОД
+        NetworkDataFetch.shared.fetchWeather { [weak self] weather, error in
+            guard let weather = weather else {return}
+            self?.weatherView.setWeather(model: weather)
+            
+            NetworkImageRequest.shared.requestData(id: weather.weather[0].icon) { result in
+                switch result {
+                case .success(let data):
+                    self?.weatherView.setImage(data: data)
+                case .failure(let error):
+                    print(error.localizedDescription)
+                }
+            }
+        }
+        
     }
+        
 
     
     // MARK: - methods-actions
@@ -94,6 +114,16 @@ class MainViewController: UIViewController {
         
         // ЗАМЕНИЛ НА ЗАМЫКАНИЕ!!!!!!!
         //        calendarView.calendarCollectionViewDelegate = self
+    }
+    
+    private func showOnboarding() {
+        let userDefaults = UserDefaults.standard
+        let onBoardingWasViewed = userDefaults.bool(forKey: "OnBoardingWasViewed")
+        if onBoardingWasViewed == false {
+            let onboardingViewController = OnboardingViewController()
+            onboardingViewController.modalPresentationStyle = .fullScreen
+            present(onboardingViewController, animated: false)
+        }
     }
     
     private func addWorkoutButtonTapped(){
